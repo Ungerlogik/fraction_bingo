@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Brüche Bingo Mobile</title>
+    <style>
+        :root {
+            --primary-color: #2980b9;
+            --accent-color: #f39c12;
+            --bg-color: #f8f9fa;
+            --text-color: #2c3e50;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin: 10px 0;
+            color: var(--primary-color);
+        }
+
+        /* Info-Button (i) */
+        #infoBtn {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            width: 35px;
+            height: 35px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-style: italic;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            border: none;
+        }
+
+        /* Modal / Overlay für Regeln */
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            max-width: 400px;
+            position: relative;
+        }
+
+        /* Spiellayout */
+        .status-message {
+            font-size: 1.1rem;
+            color: #e74c3c;
+            height: 25px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .main-display {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 450px;
+            margin-bottom: 15px;
+        }
+
+        .box {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            width: 45%;
+            padding: 10px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        /* Bruch-Design (skalierbar) */
+        .fraction {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .numerator {
+            border-bottom: 3px solid var(--text-color);
+            padding: 0 5px;
+        }
+
+        .denominator {
+            padding: 0 5px;
+        }
+
+        /* Bingo Gitter Mobile */
+        .bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            width: 100%;
+            max-width: 350px;
+            background: #ecf0f1;
+            padding: 8px;
+            border-radius: 10px;
+        }
+
+        .grid-cell {
+            background: white;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 5px;
+            font-size: 0.6em; /* Brüche im Gitter kleiner */
+        }
+
+        .grid-cell .fraction { font-size: 1.2rem; }
+        .grid-cell .numerator { border-bottom-width: 2px; }
+
+        /* Steuerung unten */
+        .action-area {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        button.main-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            box-shadow: 0 4px #1a5276;
+            touch-action: manipulation;
+        }
+
+        button.main-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px #1a5276;
+        }
+
+        button.draw-btn {
+            background: var(--accent-color);
+            box-shadow: 0 4px #d35400;
+        }
+
+        .highlight { background-color: #f1c40f !important; transition: 0.3s; }
+    </style>
+</head>
+<body>
+
+    <button id="infoBtn" onclick="toggleModal()">i</button>
+    <h1>Brüche Bingo</h1>
+
+    <div class="status-message" id="statusMessage"></div>
+
+    <div class="main-display">
+        <div class="box">
+            <div class="label">Bruch (x)</div>
+            <div id="targetFraction" class="fraction">-</div>
+        </div>
+        <div class="box">
+            <div class="label">Gezogen (y)</div>
+            <div id="drawnFraction" class="fraction">-</div>
+        </div>
+    </div>
+
+    <div class="bingo-grid" id="bingoGrid">
+        <div class="grid-cell" id="cell-0"></div>
+        <div class="grid-cell" id="cell-1"></div>
+        <div class="grid-cell" id="cell-2"></div>
+        <div class="grid-cell" id="cell-3"></div>
+        <div class="grid-cell" id="cell-4"></div>
+        <div class="grid-cell" id="cell-5"></div>
+        <div class="grid-cell" id="cell-6"></div>
+        <div class="grid-cell" id="cell-7"></div>
+        <div class="grid-cell" id="cell-8"></div>
+    </div>
+
+    <div class="action-area">
+        <button class="main-btn draw-btn" id="drawBtn">Nächster Bruch (Enter)</button>
+        <button class="main-btn" onclick="startNewGame()">Neues Spiel</button>
+    </div>
+
+    <div id="modal" onclick="toggleModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3>Spielregeln</h3>
+            <p>Fülle ein 3x3 Feld mit Brüchen aus, die sich durch Erweitern oder Kürzen des vorgegebenen Bruchs ergeben.</p>
+            <ul>
+                <li>Alle gekürzten Varianten sind möglich.</li>
+                <li>Erweiterungen von 1 bis 10 sind möglich.</li>
+            </ul>
+            <button class="main-btn" style="width:100%; box-shadow:none;" onclick="toggleModal()">Verstanden</button>
+        </div>
+    </div>
+
+    <script>
+        let fractionList = [];
+        let isGameActive = false;
+
+        function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+
+        function createFractionHTML(n, d) {
+            return `<div class="fraction"><span class="numerator">${n}</span><span class="denominator">${d}</span></div>`;
+        }
+
+        function toggleModal() {
+            const m = document.getElementById('modal');
+            m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
+        }
+
+        function startNewGame() {
+            document.querySelectorAll('.grid-cell').forEach(c => {
+                c.innerHTML = '';
+                c.classList.remove('highlight');
+            });
+            document.getElementById('statusMessage').innerText = '';
+            document.getElementById('drawnFraction').innerText = '-';
+
+            let n, d, valid = false;
+            while(!valid) {
+                d = Math.floor(Math.random() * 99) + 2;
+                n = Math.floor(Math.random() * (d - 1)) + 1;
+                let common = gcd(n, d);
+                if (common > 1 && (d/common) <= 10) valid = true;
+            }
+
+            document.getElementById('targetFraction').innerHTML = createFractionHTML(n, d);
+            generateList(n, d);
+            isGameActive = true;
+        }
+
+        function generateList(n, d) {
+            fractionList = [];
+            let seen = new Set();
+            let common = gcd(n, d);
+            let bN = n/common, bD = d/common;
+
+            for(let i=1; i<=common; i++) {
+                if(common % i === 0) add(bN*i, bD*i, seen);
+            }
+            for(let i=1; i<=10; i++) add(n*i, d*i, seen);
+        }
+
+        function add(n, d, seen) {
+            if(!seen.has(`${n}/${d}`)) {
+                fractionList.push({n, d});
+                seen.add(`${n}/${d}`);
+            }
+        }
+
+        function draw() {
+            if(!isGameActive) return;
+            if(fractionList.length === 0) {
+                document.getElementById('statusMessage').innerText = "Liste leer!";
+                return;
+            }
+
+            let idx = Math.floor(Math.random() * fractionList.length);
+            let f = fractionList.splice(idx, 1)[0];
+            document.getElementById('drawnFraction').innerHTML = createFractionHTML(f.n, f.d);
+
+            let empty = Array.from(document.querySelectorAll('.grid-cell')).filter(c => c.innerHTML === '');
+            if(empty.length > 0) {
+                let cell = empty[Math.floor(Math.random() * empty.length)];
+                cell.innerHTML = createFractionHTML(f.n, f.d);
+                cell.classList.add('highlight');
+                setTimeout(() => cell.classList.remove('highlight'), 500);
+            } else {
+                document.getElementById('statusMessage').innerText = "Feld voll!";
+            }
+        }
+
+        document.getElementById('drawBtn').onclick = draw;
+        document.onkeydown = (e) => { if(e.key === 'Enter') draw(); };
+        window.onload = startNewGame;
+    </script>
+</body>
+</html>

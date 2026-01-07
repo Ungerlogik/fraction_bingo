@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Brüche Bingo - Weiterleitung</title>
+    <script>
+        function redirect() {
+            // Prüfung: Wenn Bildschirmbreite kleiner als 768px oder Mobilgerät erkannt
+            const isMobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+            if (isMobile) {
+                window.location.href = "fraction_bingo_handy.html";
+            } else {
+                window.location.href = "fraction_bingo_pc.html";
+            }
+        }
+        // Sofort ausführen
+        redirect();
+    </script>
+</head>
+<body style="background: #f0f4f8; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh;">
+    <p>Lade passende Version...</p>
+</body>
+</html>
