@@ -17,10 +17,16 @@ Dieses Tool hilft Schülern, ein Gefühl für wertgleiche Brüche zu entwickeln.
 - **Automatische Erkennung:** Die `index.html` leitet Nutzer automatisch auf die passende Version für ihr Gerät weiter.
 
 ### Spielregeln
-1. Ein zufälliger, kürzbarer Bruch $x$ wird generiert.
-2. Durch Drücken der **Enter-Taste** wird ein Bruch $y$ gezogen.
-3. Der Bruch $y$ ist entweder eine gekürzte Form von $x$ oder eine Erweiterung (Faktor 1 bis 10).
+1. Ein zufälliger, kürzbarer Bruch wird generiert.
+2. Durch Drücken der **Enter-Taste** wird ein Bruch gezogen.
+3. Der gezogene Bruch ist entweder eine gekürzte Form von oder eine Erweiterung (Faktor 1 bis 10).
 4. Gezogene Brüche werden zufällig in das 3x3 Gitter eingetragen, bis dieses voll ist oder alle Möglichkeiten erschöpft sind.
+
+### Spielprinzip
+1. Notiere dir zunächst in ein 3x3 Gitter gekürzte oder erweiterte Formen des vorgegebenen Bruchs.
+2. Lasse nun durch die Homepage mehrere Brüche nacheinander ziehen.
+3. Wenn drei Brüche in einer Reige/Spalte oder diagonal mit den gezogenen Brüchen übereinstimmen: BINGO!
+4. Stimmt deine Reihe sogar mit der Reige auf dem Bildschirm überein, hast du ein SUPER-BINGO.
 
 ---
 
@@ -39,6 +45,12 @@ This tool helps students develop a sense for equivalent fractions. A target frac
 2. By pressing the **Enter key**, a fraction $y$ is drawn.
 3. Fraction $y$ is either a simplified version of $x$ or an expansion (factor 1 to 10).
 4. Drawn fractions are randomly entered into the 3x3 grid until it is full or all possibilities are exhausted.
+
+### Gameplay
+1. First, write down simplified or expanded versions of the given fraction into your own 3x3 grid (e.g., on paper).
+2. Use the website to draw several fractions one after another.
+3. If three fractions in a row, column, or diagonal match the drawn fractions: BINGO!
+4. If your row even matches the exact same row on the screen: SUPER-BINGO!
 
 ---
 
