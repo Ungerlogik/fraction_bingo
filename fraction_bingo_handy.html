@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Brüche Bingo Mobile</title>
+    <style>
+        :root {
+            --primary-color: #2980b9;
+            --accent-color: #f39c12;
+            --bg-color: #f0f4f8;
+            --text-color: #2c3e50;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 { font-size: 1.5rem; margin: 10px 0; color: var(--primary-color); }
+
+        /* Info-Button (i) */
+        #infoBtn {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 35px;
+            height: 35px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-style: italic;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        /* Modal / Overlay für Regeln */
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            max-width: 90%;
+            font-size: 0.9rem;
+        }
+
+        .status-message {
+            font-size: 1.1rem;
+            color: #e74c3c;
+            height: 30px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        /* Stapel-Layout für Mobile */
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            align-items: center;
+        }
+
+        .display-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .static-box {
+            background: white;
+            border: 2px solid #34495e;
+            border-radius: 10px;
+            width: 45%;
+            padding: 10px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 140px;
+        }
+
+        .label { font-size: 0.7rem; text-transform: uppercase; color: #7f8c8d; margin-bottom: 5px; }
+
+        .fraction { display: inline-flex; flex-direction: column; align-items: center; font-weight: bold; }
+
+        /* Kleinere Inputs für Mobile */
+        input.fraction-input {
+            width: 60px;
+            font-size: 1.8rem;
+            text-align: center;
+            border: 1px dashed #bdc3c7;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+
+        .bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            width: 100%;
+            max-width: 350px;
+            background: #bdc3c7;
+            padding: 5px;
+            border-radius: 10px;
+        }
+
+        .grid-cell {
+            background: white;
+            aspect-ratio: 1/1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 5px;
+            font-size: 0.4em;
+        }
+
+        .grid-cell .fraction { font-size: 1.2rem; }
+        .grid-cell .numerator { border-bottom: 2px solid #2c3e50; }
+
+        .controls {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        button {
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            touch-action: manipulation;
+        }
+
+        #startBtn { background: var(--primary-color); box-shadow: 0 4px #1a5276; }
+        #drawBtn { background: var(--accent-color); box-shadow: 0 4px #d35400; }
+
+        button:active { transform: translateY(2px); box-shadow: none; }
+    </style>
+</head>
+<body>
+
+    <button id="infoBtn" onclick="toggleModal()">i</button>
+    <h1>Brüche Bingo</h1>
+
+    <div class="status-message" id="statusMessage"></div>
+
+    <div class="main-container">
+        <div class="display-row">
+            <div class="static-box">
+                <span class="label">Dein Bruch (x)</span>
+                <div class="fraction">
+                    <input type="number" id="inputNum" class="fraction-input" placeholder="Z">
+                    <div style="width: 60px; border-bottom: 3px solid #2c3e50; margin: 2px 0;"></div>
+                    <input type="number" id="inputDen" class="fraction-input" placeholder="N">
+                </div>
+            </div>
+
+            <div class="static-box">
+                <span class="label">Gezogen (y)</span>
+                <div id="drawnFraction" class="fraction" style="font-size: 2rem;">-</div>
+            </div>
+        </div>
+
+        <div class="bingo-grid" id="bingoGrid">
+            <div class="grid-cell" id="cell-0"></div>
+            <div class="grid-cell" id="cell-1"></div>
+            <div class="grid-cell" id="cell-2"></div>
+            <div class="grid-cell" id="cell-3"></div>
+            <div class="grid-cell" id="cell-4"></div>
+            <div class="grid-cell" id="cell-5"></div>
+            <div class="grid-cell" id="cell-6"></div>
+            <div class="grid-cell" id="cell-7"></div>
+            <div class="grid-cell" id="cell-8"></div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="drawBtn">Nächster Bruch</button>
+        <button id="startBtn">Spiel starten</button>
+    </div>
+
+    <div id="modal" onclick="toggleModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3>Spielregeln</h3>
+            <p>Fülle ein 3x3 Feld mit Brüchen aus, die sich durch Erweitern oder Kürzen des vorgegebenen Bruchs ergeben.</p>
+            <p><strong>Hinweise:</strong></p>
+            <ul>
+                <li>Alle gekürzten Varianten möglich.</li>
+                <li>Erweiterungen von 1 bis 10 möglich.</li>
+            </ul>
+            <button onclick="toggleModal()" style="background:var(--primary-color); width:100%; margin-top:10px;">Schließen</button>
+        </div>
+    </div>
+
+    <script>
+        let fractionList = [];
+        let isGameActive = false;
+
+        function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+
+        function createFractionHTML(n, d, small = false) {
+            const line = small ? '2px' : '3px';
+            return `<div class="fraction"><span class="numerator" style="border-bottom:${line} solid #2c3e50">${n}</span><span>${d}</span></div>`;
+        }
+
+        function toggleModal() {
+            const m = document.getElementById('modal');
+            m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
+        }
+
+        function startGame() {
+            const gridCells = document.querySelectorAll('.grid-cell');
+            gridCells.forEach(cell => cell.innerHTML = '');
+            document.getElementById('drawnFraction').innerHTML = '-';
+            document.getElementById('statusMessage').innerText = '';
+
+            let n = parseInt(document.getElementById('inputNum').value);
+            let d = parseInt(document.getElementById('inputDen').value);
+
+            if (isNaN(n) || isNaN(d) || d === 0) {
+                let valid = false;
+                while (!valid) {
+                    d = Math.floor(Math.random() * 99) + 2;
+                    n = Math.floor(Math.random() * (d - 1)) + 1;
+                    let common = gcd(n, d);
+                    if (common > 1 && (d / common) <= 10) valid = true;
+                }
+                document.getElementById('inputNum').value = n;
+                document.getElementById('inputDen').value = d;
+            }
+
+            generateFractionList(n, d);
+            isGameActive = true;
+        }
+
+        function generateFractionList(n, d) {
+            fractionList = [];
+            let seen = new Set();
+            let common = gcd(n, d);
+            let bN = n / common, bD = d / common;
+            for (let i = 1; i <= common; i++) { if (common % i === 0) addToList(bN * i, bD * i, seen); }
+            for (let i = 1; i <= 10; i++) { addToList(n * i, d * i, seen); }
+        }
+
+        function addToList(n, d, set) {
+            let id = `${n}/${d}`;
+            if (!set.has(id)) { fractionList.push({ n, d }); set.add(id); }
+        }
+
+        function draw() {
+            if (!isGameActive) return;
+            if (fractionList.length === 0) {
+                document.getElementById('statusMessage').innerText = "Spiel beendet!";
+                document.getElementById('inputNum').value = '';
+                document.getElementById('inputDen').value = '';
+                isGameActive = false;
+                return;
+            }
+            const idx = Math.floor(Math.random() * fractionList.length);
+            const f = fractionList.splice(idx, 1)[0];
+            document.getElementById('drawnFraction').innerHTML = createFractionHTML(f.n, f.d);
+            const emptyCells = Array.from(document.querySelectorAll('.grid-cell')).filter(c => c.innerHTML === '');
+            if (emptyCells.length > 0) {
+                emptyCells[Math.floor(Math.random() * emptyCells.length)].innerHTML = createFractionHTML(f.n, f.d, true);
+            }
+        }
+
+        window.onload = () => {
+            document.getElementById("startBtn").onclick = startGame;
+            document.getElementById("drawBtn").onclick = draw;
+        };
+    </script>
+</body>
+</html>
